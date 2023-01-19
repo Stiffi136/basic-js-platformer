@@ -1,0 +1,87 @@
+<canvas id="game"></canvas>
+<script>
+
+    // Get canvas and context
+    const canvas = document.getElementById("game");
+    canvas.width = 2000;
+    canvas.height = 600;
+
+    const ctx = canvas.getContext("2d");
+    // Create player object
+    let player = {
+        x: 50,
+        y: 50,
+        width: 20,
+        height: 20,
+        speed: 5,
+        gravity: 0.5,
+        velocity: 0
+    };
+
+
+    // Create platforms array
+    let platforms = [
+        { x: 0, y: 300, width: 800, height: 10 },
+        { x: 200, y: 200, width: 100, height: 10 },
+        { x: 600, y: 100, width: 100, height: 10 }
+    ];
+
+    // Keep track of which keys are currently pressed
+    let keysPressed = {};
+
+    // Handle keydown events
+    document.addEventListener("keydown", function (event) {
+        keysPressed[event.keyCode] = true;
+    });
+
+    // Handle keyup events
+    document.addEventListener("keyup", function (event) {
+        keysPressed[event.keyCode] = false;
+    });
+
+    // Game loop
+    function update() {
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Update player position based on input
+        if (keysPressed[37]) { // Left arrow key
+            player.x -= player.speed;
+        }
+        if (keysPressed[38]) { // Up arrow key
+            player.velocity = -10;
+        }
+        if (keysPressed[39]) { // Right arrow key
+            player.x += player.speed;
+        }
+
+        // Update player y-position with gravity
+        player.velocity += player.gravity;
+        player.y += player.velocity;
+
+        // Draw player
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        // Draw platforms
+        ctx.fillStyle = "gray";
+        for (let i = 0; i < platforms.length; i++) {
+            ctx.fillRect(platforms[i].x, platforms[i].y, platforms[i].width, platforms[i].height);
+        }
+
+        // Check for collision with platforms
+        for (let i = 0; i < platforms.length; i++) {
+            if (player.x + player.width > platforms[i].x &&
+                player.x < platforms[i].x + platforms[i].width &&
+                player.y + player.height > platforms[i].y &&
+                player.y < platforms[i].y + platforms[i].height) {
+                player.velocity = 0; // Stop falling
+                player.y = platforms[i].y - player.height; // Move player to top of platform
+            }
+        }
+
+        // Repeat update function after a set amount of time
+        setTimeout(update, 1000 / 30);
+    }
+    update();
+
+</script>
